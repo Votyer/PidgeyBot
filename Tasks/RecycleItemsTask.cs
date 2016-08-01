@@ -18,10 +18,8 @@ namespace PoGo.NecroBot.Logic.Tasks
             foreach (var item in items)
             {
                 await pidgey._client.Inventory.RecycleItem(item.ItemId, item.Count);
-
+                pidgey._stats.TotalItemsRemoved++;
                 Logger.Write("Recycled Item "+ item.Count +"x " + item.ItemId, Logger.LogLevel.Info, pidgey._trainerName, pidgey._authType);
-
-                await Task.Delay(500);
             }
 
             await pidgey._inventory.RefreshCachedInventory();

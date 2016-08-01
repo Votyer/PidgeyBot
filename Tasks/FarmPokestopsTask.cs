@@ -54,8 +54,6 @@ namespace PoGo.NecroBot.Logic.Tasks
                     {
                         // Catch normal map Pokemon
                         await CatchNearbyPokemonsTask.Execute(pidgey);
-                        //Catch Incense Pokemon
-                        await CatchIncensePokemonsTask.Execute(pidgey);
                         return true;
                     });
                 //Catch Lure Pokemon
@@ -69,25 +67,29 @@ namespace PoGo.NecroBot.Logic.Tasks
                 Logger.Write("Farmed XP: " + fortSearch.ExperienceAwarded + " Eggs: "+ EggReward + " Gems: "+fortSearch.GemsAwarded+" Items: " + GetSummedFriendlyNameOfItemAwardList(fortSearch.ItemsAwarded), Logger.LogLevel.Info, pidgey._trainerName, pidgey._authType);
 
                 await Task.Delay(500);
+
                 if (++stopsHit % 5 == 0) //TODO: OR item/pokemon bag is full
                 {
                     stopsHit = 0;
+
                     if (fortSearch.ItemsAwarded.Count > 0)
-                    {
-                        var refreshCachedInventory = await pidgey._inventory.RefreshCachedInventory();
-                    }
-                    await RenamePokemonTask.Execute(pidgey);
-                    await RecycleItemsTask.Execute(pidgey);
+                        await pidgey._inventory.RefreshCachedInventory();
+
+                    if (pidgey._clientSettings.RenamePokemons)
+                        await RenamePokemonTask.Execute(pidgey);
+
+                    if (pidgey._clientSettings.RecycleItems)
+                        await RecycleItemsTask.Execute(pidgey);
+
                     if (pidgey._client.Settings.AutoEvolve || pidgey._client.Settings.EvolveAllPokemonAboveIV)
-                    {
                         await EvolvePokemonTask.Execute(pidgey);
-                    }
+
                     if (pidgey._client.Settings.AutoTransfer)
-                    {
                         await TransferDuplicatePokemonTask.Execute(pidgey);
-                    }
+
                     Logger.Write(pidgey._stats.ToStrings(pidgey._inventory), LogLevel.Info, pidgey._trainerName, pidgey._authType);
                 }
+
             }
         }
         public static string GetSummedFriendlyNameOfItemAwardList(IEnumerable<ItemAward> items)

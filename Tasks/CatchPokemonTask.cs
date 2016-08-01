@@ -142,7 +142,7 @@ namespace PoGo.NecroBot.Logic.Tasks
 
             await pidgey._client.Encounter.UseCaptureItem(encounterId, ItemId.ItemRazzBerry, spawnPointId);
             berry.Count -= 1;
-            Logger.Write("Use Berry, " + berry.Count + " remaining");
+            Logger.Write("Use Berry, " + berry.Count + " remaining", LogLevel.Info, pidgey._trainerName, pidgey._authType);
 
             await Task.Delay(1500);
         }

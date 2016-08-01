@@ -92,7 +92,7 @@ namespace PidgeyBot.Utils
                     switch (status)
                     {
                         case CatchStatus.CatchSuccess:
-                            System.Console.Write("Cought a ");
+                            System.Console.Write("Caught a ");
                             System.Console.ForegroundColor = ConsoleColor.Red;
                             try
                             {

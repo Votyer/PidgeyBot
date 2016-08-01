@@ -45,8 +45,8 @@ namespace PidgeyBot
                 _stats = stats;
 
             _authType = authType;
-            _client.Settings.PtcUsername = username;
-            _client.Settings.PtcPassword = password;
+            _clientSettings.PtcUsername = username;
+            _clientSettings.PtcPassword = password;
         }
 
         public async Task Execute()
@@ -59,10 +59,10 @@ namespace PidgeyBot
                     switch (_authType)
                     {
                         case AuthType.Google:
-                            await _client.Login.DoGoogleLogin(_client.Settings.PtcUsername, _client.Settings.PtcPassword);
+                            await _client.Login.DoGoogleLogin(_clientSettings.PtcUsername, _clientSettings.PtcPassword);
                             break;
                         case AuthType.Ptc:
-                            await _client.Login.DoPtcLogin(_client.Settings.PtcUsername, _client.Settings.PtcPassword);
+                            await _client.Login.DoPtcLogin(_clientSettings.PtcUsername, _clientSettings.PtcPassword);
                             break;
                     }
                     var profile = await _client.Player.GetPlayer();

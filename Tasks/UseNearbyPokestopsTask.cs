@@ -44,7 +44,8 @@ namespace PoGo.NecroBot.Logic.Tasks
 
                 await Task.Delay(1000);
 
-                await RecycleItemsTask.Execute(pidgey);
+                if(pidgey._clientSettings.RecycleItems)
+                    await RecycleItemsTask.Execute(pidgey);
 
                 if (pidgey._client.Settings.AutoTransfer)
                 {

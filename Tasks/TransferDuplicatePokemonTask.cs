@@ -6,6 +6,7 @@ using PokemonGo.RocketAPI;
 using PidgeyBot.Logic;
 using PidgeyBot.Utils;
 using PidgeyBot;
+using System;
 
 #endregion
 
@@ -39,13 +40,10 @@ namespace PoGo.NecroBot.Logic.Tasks
 
                 if (bestPokemonOfType == null)
                     bestPokemonOfType = duplicatePokemon;
+                
+                pidgey._stats.TotalPokemonsTransfered++;
 
-                var setting = pokemonSettings.Single(q => q.PokemonId == duplicatePokemon.PokemonId);
-                var family = pokemonFamilies.First(q => q.FamilyId == setting.FamilyId);
-
-                family.Candy++;
-
-                Logger.Write("Transfered a " + duplicatePokemon.PokemonId + " with " + duplicatePokemon.Cp + "CP (" + PokemonInfo.CalculatePokemonPerfection(duplicatePokemon) + "%)", Logger.LogLevel.Info, pidgey._trainerName, pidgey._authType);
+                Logger.Write("Transfered a " + duplicatePokemon.PokemonId + " with " + duplicatePokemon.Cp + "CP (" + Math.Round(PokemonInfo.CalculatePokemonPerfection(duplicatePokemon),2) + "%)", Logger.LogLevel.Info, pidgey._trainerName, pidgey._authType);
             }
         }
     }
