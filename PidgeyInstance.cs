@@ -1,4 +1,5 @@
-﻿using PidgeyBot.Logic;
+﻿using PidgeyBot.Common;
+using PidgeyBot.Logic;
 using PidgeyBot.Utils;
 using PoGo.NecroBot.Logic.Tasks;
 using POGOProtos.Enums;
@@ -44,6 +45,8 @@ namespace PidgeyBot
             else
                 _stats = stats;
 
+            _client.ApiFailure = new ApiFailureStrategy(this);
+
             _authType = authType;
             _clientSettings.PtcUsername = username;
             _clientSettings.PtcPassword = password;
@@ -65,7 +68,7 @@ namespace PidgeyBot
                             await _client.Login.DoPtcLogin(_clientSettings.PtcUsername, _clientSettings.PtcPassword);
                             break;
                     }
-                    var profile = await _client.Player.GetPlayer();
+                    var profile = await _client.Player.GetPlayer(); 
                     _trainerName = profile.PlayerData.Username;
                     await PostLoginExecute();
                 }

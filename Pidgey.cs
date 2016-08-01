@@ -162,8 +162,8 @@ namespace PidgeyBot
 
         static void drawHeader()
         {
-            Console.Title = "PidgeyBot - v1.4 | PidgeyBot.com";
-            string t1 = "PidgeyBot - v1.4";
+            Console.Title = "PidgeyBot - v1.5 | PidgeyBot.com";
+            string t1 = "PidgeyBot - v1.5";
             string t2 = "Visit PidgeyBot.com";
             string t3 = "Thanks to FeroxRev and all Contributors";
 

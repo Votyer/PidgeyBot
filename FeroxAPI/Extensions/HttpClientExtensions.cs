@@ -2,23 +2,12 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using Google.Protobuf;
+using PokemonGo.RocketAPI.Common;
 using PokemonGo.RocketAPI.Exceptions;
 using POGOProtos.Networking.Envelopes;
 
 namespace PokemonGo.RocketAPI.Extensions
 {
-    public enum ApiOperation
-    {
-        Retry,
-        Abort
-    }
-
-    public interface IApiFailureStrategy
-    {
-        Task<ApiOperation> HandleApiFailure();
-        void HandleApiSuccess();
-    }
-
     public static class HttpClientExtensions
     {
         public static async Task<TResponsePayload> PostProtoPayload<TRequest, TResponsePayload>(this System.Net.Http.HttpClient client,
