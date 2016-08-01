@@ -96,7 +96,11 @@ namespace PidgeyBot
                         }
                         if (result.Length > 2 && result[2] != null)
                         {
-                            PidgeyInstance instance = new PidgeyInstance(seperated, AuthType.Ptc, result[0], result[1], double.Parse(result[2], CultureInfo.InvariantCulture), double.Parse(result[3], CultureInfo.InvariantCulture));
+                            PidgeyInstance instance;
+                            if (!result[2].Contains("lat"))
+                                instance = new PidgeyInstance(seperated, AuthType.Ptc, result[0], result[1], double.Parse(result[2], CultureInfo.InvariantCulture), double.Parse(result[3], CultureInfo.InvariantCulture));
+                            else
+                                instance = new PidgeyInstance(seperated, AuthType.Ptc, result[0], result[1]);
                             Task.Run(() => instance.Execute());
                         }
                         else
@@ -133,7 +137,11 @@ namespace PidgeyBot
                         }
                         if (result.Length > 2 && result[2] != null)
                         {
-                            PidgeyInstance instance = new PidgeyInstance(seperated, AuthType.Google, result[0], result[1], double.Parse(result[2], CultureInfo.InvariantCulture), double.Parse(result[3], CultureInfo.InvariantCulture));
+                            PidgeyInstance instance;
+                            if (!result[2].Contains("lat"))
+                                instance = new PidgeyInstance(seperated, AuthType.Google, result[0], result[1], double.Parse(result[2], CultureInfo.InvariantCulture), double.Parse(result[3], CultureInfo.InvariantCulture));
+                            else
+                                instance = new PidgeyInstance(seperated, AuthType.Google, result[0], result[1]);
                             Task.Run(() => instance.Execute());
                         }
                         else
