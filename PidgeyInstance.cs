@@ -89,25 +89,20 @@ namespace PidgeyBot
                     _trainerName = profile.PlayerData.Username;
                     Logger.Write($"Teleport to Coords: { _clientSettings.DefaultLatitude } / { _clientSettings.DefaultLongitude }", LogLevel.Info, _trainerName, _authType);
 
-
-                    await RenamePokemonTask.Execute(this);
+                    if(_clientSettings.RenamePokemons)
+                        await RenamePokemonTask.Execute(this);
 
                     if (_clientSettings.EvolveAllPokemonAboveIV || _clientSettings.AutoEvolve)
-                    {
                         await EvolvePokemonTask.Execute(this);
-                    }
 
                     if (_clientSettings.AutoTransfer)
-                    {
                         await TransferDuplicatePokemonTask.Execute(this);
-                    }
 
-                    await RecycleItemsTask.Execute(this);
+                    if(_clientSettings.RecycleItems)
+                        await RecycleItemsTask.Execute(this);
 
                     if (_clientSettings.UseEggIncubators)
-                    {
                         await UseIncubatorsTask.Execute(this);
-                    }
 
                     await CatchNearbyPokemonsTask.Execute(this);
                     await FarmPokestopsTask.Execute(this);
