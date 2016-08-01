@@ -7,10 +7,22 @@ using POGOProtos.Networking.Envelopes;
 
 namespace PokemonGo.RocketAPI.Extensions
 {
+    public enum ApiOperation
+    {
+        Retry,
+        Abort
+    }
+
+    public interface IApiFailureStrategy
+    {
+        Task<ApiOperation> HandleApiFailure();
+        void HandleApiSuccess();
+    }
+
     public static class HttpClientExtensions
     {
         public static async Task<TResponsePayload> PostProtoPayload<TRequest, TResponsePayload>(this System.Net.Http.HttpClient client,
-            string url, RequestEnvelope requestEnvelope) where TRequest : IMessage<TRequest>
+            string url, RequestEnvelope requestEnvelope, IApiFailureStrategy strategy) where TRequest : IMessage<TRequest>
             where TResponsePayload : IMessage<TResponsePayload>, new()
         {
             Debug.WriteLine($"Requesting {typeof(TResponsePayload).Name}");
@@ -18,12 +30,19 @@ namespace PokemonGo.RocketAPI.Extensions
 
             while (response.Returns.Count == 0)
             {
-                await Task.Delay(500);
+                var operation = await strategy.HandleApiFailure();
+                if (operation == ApiOperation.Abort)
+                {
+                    break;
+                }
+
                 response = await PostProto<TRequest>(client, url, requestEnvelope);
             }
 
             if (response.Returns.Count == 0)
                 throw new InvalidResponseException();
+
+            strategy.HandleApiSuccess();
 
             //Decode payload
             //todo: multi-payload support
