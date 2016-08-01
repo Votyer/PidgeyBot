@@ -23,23 +23,6 @@ namespace PoGo.NecroBot.Logic.Tasks
     {
         public static async Task Execute(PidgeyInstance pidgey)
         {
-            var distanceFromStart = LocationUtils.CalculateDistanceInMeters(
-                pidgey._client.Settings.DefaultLatitude, pidgey._client.Settings.DefaultLongitude,
-                pidgey._client.CurrentLatitude, pidgey._client.CurrentLongitude);
-
-            // Edge case for when the client somehow ends up outside the defined radius
-            if (pidgey._client.Settings.MaxTravelDistanceInMeters != 0 &&
-                distanceFromStart > pidgey._client.Settings.MaxTravelDistanceInMeters)
-            {
-                await Task.Delay(5000);
-
-                Logger.Write(pidgey._client.CurrentLatitude + "," + pidgey._client.CurrentLongitude, LogLevel.Info, pidgey._trainerName, pidgey._authType);
-
-                await pidgey._navigation.HumanLikeWalking(
-                    new GeoCoordinate(pidgey._client.Settings.DefaultLatitude, pidgey._client.Settings.DefaultLongitude),
-                    pidgey._client.Settings.WalkingSpeedInKilometerPerHour, null);
-            }
-
             var pokestopList = await GetPokeStops(pidgey);
             var stopsHit = 0;
 
@@ -75,7 +58,6 @@ namespace PoGo.NecroBot.Logic.Tasks
                         await CatchIncensePokemonsTask.Execute(pidgey);
                         return true;
                     });
-
                 //Catch Lure Pokemon
                 if (pokeStop.LureInfo != null)
                 {
@@ -86,7 +68,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                 string EggReward = fortSearch.PokemonDataEgg != null ? "1" : "0";
                 Logger.Write("Farmed XP: " + fortSearch.ExperienceAwarded + " Eggs: "+ EggReward + " Gems: "+fortSearch.GemsAwarded+" Items: " + GetSummedFriendlyNameOfItemAwardList(fortSearch.ItemsAwarded), Logger.LogLevel.Info, pidgey._trainerName, pidgey._authType);
 
-                await Task.Delay(1000);
+                await Task.Delay(500);
                 if (++stopsHit % 5 == 0) //TODO: OR item/pokemon bag is full
                 {
                     stopsHit = 0;
@@ -124,20 +106,14 @@ namespace PoGo.NecroBot.Logic.Tasks
         private static async Task<List<FortData>> GetPokeStops(PidgeyInstance pidgey)
         {
             var mapObjects = await pidgey._client.Map.GetMapObjects();
-
-            // Wasn't sure how to make this pretty. Edit as needed.
-            var pokeStops = mapObjects.MapCells.SelectMany(i => i.Forts)
+            var pokeStops = mapObjects.MapCells
+                .SelectMany(i => i.Forts)
                 .Where(
                     i =>
                         i.Type == FortType.Checkpoint &&
-                        i.CooldownCompleteTimestampMs < DateTime.UtcNow.ToUnixTime() &&
-                        ( // Make sure PokeStop is within max travel distance, unless it's set to 0.
-                            LocationUtils.CalculateDistanceInMeters(
-                                pidgey._client.Settings.DefaultLatitude, pidgey._client.Settings.DefaultLongitude,
-                                i.Latitude, i.Longitude) < pidgey._client.Settings.MaxTravelDistanceInMeters) ||
-                        pidgey._client.Settings.MaxTravelDistanceInMeters == 0
-                );
-
+                        i.CooldownCompleteTimestampMs < DateTime.UtcNow.ToUnixTime())
+                .OrderBy(i => LocationUtils.CalculateDistanceInMeters(pidgey._client.CurrentLatitude,
+                        pidgey._client.CurrentLongitude, i.Latitude, i.Longitude));
             return pokeStops.ToList();
         }
     }

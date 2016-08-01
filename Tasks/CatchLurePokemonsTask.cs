@@ -28,11 +28,11 @@ namespace PoGo.NecroBot.Logic.Tasks
             {
                 if (pidgey._client.Settings.AutoTransfer)
                 {
-                    Logger.Write($"PokemonInventory is Full. Transferring pokemons...", LogLevel.Info);
+                    Logger.Write($"PokemonInventory is Full. Transferring pokemons...", LogLevel.Info, pidgey._trainerName, pidgey._authType);
                     await TransferDuplicatePokemonTask.Execute(pidgey);
                 }
                 else
-                    Logger.Write($"PokemonInventory is Full. Please Transfer pokemon manually or set TransferDuplicatePokemon to true in settings...", LogLevel.Warning);
+                    Logger.Write($"PokemonInventory is Full. Please Transfer pokemon manually or set TransferDuplicatePokemon to true in settings...", LogLevel.Warning, pidgey._trainerName, pidgey._authType);
 
             }
             else

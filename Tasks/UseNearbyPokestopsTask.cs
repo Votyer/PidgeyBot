@@ -70,20 +70,14 @@ namespace PoGo.NecroBot.Logic.Tasks
         private static async Task<List<FortData>> GetPokeStops(PidgeyInstance pidgey)
         {
             var mapObjects = await pidgey._client.Map.GetMapObjects();
-
-            // Wasn't sure how to make this pretty. Edit as needed.
-            var pokeStops = mapObjects.MapCells.SelectMany(i => i.Forts)
+            var pokeStops = mapObjects.MapCells
+                .SelectMany(i => i.Forts)
                 .Where(
                     i =>
                         i.Type == FortType.Checkpoint &&
-                        i.CooldownCompleteTimestampMs < DateTime.UtcNow.ToUnixTime() &&
-                        ( // Make sure PokeStop is within 40 meters or else it is pointless to hit it
-                            LocationUtils.CalculateDistanceInMeters(
-                                pidgey._client.Settings.DefaultLatitude, pidgey._client.Settings.DefaultLongitude,
-                                i.Latitude, i.Longitude) < 40) ||
-                        pidgey._client.Settings.MaxTravelDistanceInMeters == 0
-                );
-
+                        i.CooldownCompleteTimestampMs < DateTime.UtcNow.ToUnixTime())
+                .OrderBy(i => LocationUtils.CalculateDistanceInMeters(pidgey._client.CurrentLatitude,
+                        pidgey._client.CurrentLongitude, i.Latitude, i.Longitude));
             return pokeStops.ToList();
         }
     }
