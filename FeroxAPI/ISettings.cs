@@ -26,6 +26,7 @@ namespace PokemonGo.RocketAPI
         int AfterCatchInSeconds { get; set; }
         float EvolveAboveIVValue { get; set; }
         bool EvolveAllPokemonAboveIV { get; set; }
+        bool UseHumanWalking { get; set; }
 
         //WHY
         AuthType AuthType { get; set; }

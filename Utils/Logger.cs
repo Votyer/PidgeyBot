@@ -99,7 +99,9 @@ namespace PidgeyBot.Utils
                                 System.Console.Write($"{ pokemon.PokemonId }");
                             } catch (Exception)
                             {
-                                System.Console.Write($"{encounter?.PokemonData.PokemonId} (yay)");
+                                System.Console.Write($"{encounter?.PokemonData.PokemonId} (Lure)");
+                                System.Console.ForegroundColor = ConsoleColor.White;
+                                System.Console.Write($" ({encounter?.WildPokemon?.PokemonData?.Cp} CP)\n");
                             }
                             System.Console.ForegroundColor = ConsoleColor.White;
                             System.Console.Write($" ({encounter?.WildPokemon?.PokemonData?.Cp} CP)\n");
@@ -113,9 +115,11 @@ namespace PidgeyBot.Utils
                                 System.Console.Write($"{ pokemon.PokemonId}");
                             }
                             catch (Exception)
-                            {
-                                System.Console.Write($"{encounter?.PokemonData.PokemonId} (yay)");
-                            }
+                        {
+                            System.Console.Write($"{encounter?.PokemonData.PokemonId} (Lure)");
+                            System.Console.ForegroundColor = ConsoleColor.White;
+                            System.Console.Write($" ({encounter?.WildPokemon?.PokemonData?.Cp} CP)\n");
+                        }
                             System.Console.ForegroundColor = ConsoleColor.White;
                             System.Console.Write($" ({encounter?.WildPokemon?.PokemonData?.Cp} CP)\n");
                             break;
@@ -127,9 +131,11 @@ namespace PidgeyBot.Utils
                                 System.Console.Write($"{ pokemon.PokemonId}");
                             }
                             catch (Exception)
-                            {
-                                System.Console.Write($"{encounter?.PokemonData.PokemonId} (yay)");
-                            }
+                        {
+                            System.Console.Write($"{encounter?.PokemonData.PokemonId} (Lure)");
+                            System.Console.ForegroundColor = ConsoleColor.White;
+                            System.Console.Write($" ({encounter?.WildPokemon?.PokemonData?.Cp} CP)\n");
+                        }
                             System.Console.ForegroundColor = ConsoleColor.White;    
                             System.Console.Write($" ({encounter?.WildPokemon?.PokemonData?.Cp} CP)\n");
                             break;

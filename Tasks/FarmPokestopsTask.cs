@@ -62,16 +62,25 @@ namespace PoGo.NecroBot.Logic.Tasks
                     pidgey._client.CurrentLongitude, pokeStop.Latitude, pokeStop.Longitude);
                 var fortInfo = await pidgey._client.Fort.GetFort(pokeStop.Id, pokeStop.Latitude, pokeStop.Longitude);
 
-                Logger.Write($"[{i2}/{pokeStops.Count()}] Walking to PokeStop: " + fortInfo.Name + " ("+Math.Round(distance,2)+"m)", Logger.LogLevel.Info, pidgey._trainerName, pidgey._authType);
+                if (pidgey._clientSettings.UseHumanWalking)
+                {
+                    Logger.Write($"[{i2}/{pokeStops.Count()}] Walking to PokeStop: " + fortInfo.Name + " (" + Math.Round(distance, 2) + "m)", Logger.LogLevel.Info, pidgey._trainerName, pidgey._authType);
 
-                await pidgey._navigation.HumanLikeWalking(new GeoCoordinate(pokeStop.Latitude, pokeStop.Longitude),
-                    pidgey._client.Settings.WalkingSpeedInKilometerPerHour,
-                    async () =>
-                    {
+                    await pidgey._navigation.HumanLikeWalking(new GeoCoordinate(pokeStop.Latitude, pokeStop.Longitude),
+                        pidgey._client.Settings.WalkingSpeedInKilometerPerHour,
+                        async () =>
+                        {
                         // Catch normal map Pokemon
                         await CatchNearbyPokemonsTask.Execute(pidgey);
-                        return true;
-                    });
+                            return true;
+                        });
+
+                } else
+                {
+                    Logger.Write($"[{i2}/{pokeStops.Count()}] Teleport to PokeStop: " + fortInfo.Name + " (" + Math.Round(distance, 2) + "m)", Logger.LogLevel.Info, pidgey._trainerName, pidgey._authType);
+                    await TeleportToPokestop(pidgey, pokeStop);
+                    await Task.Delay(500);
+                }
 
                 //Catch Lure Pokemon
                 if (pokeStop.LureInfo != null)
@@ -109,6 +118,14 @@ namespace PoGo.NecroBot.Logic.Tasks
 
             }
         }
+
+        public static async Task TeleportToPokestop(PidgeyInstance pidgey, FortData closestPokestop)
+        {
+            if (closestPokestop?.Latitude == null)
+                return;
+            await pidgey._client.Player.UpdatePlayerLocation(closestPokestop.Latitude, closestPokestop.Longitude, pidgey._clientSettings.DefaultAltitude);
+        }
+
         public static string GetSummedFriendlyNameOfItemAwardList(IEnumerable<ItemAward> items)
         {
             var enumerable = items as IList<ItemAward> ?? items.ToList();

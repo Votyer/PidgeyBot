@@ -38,7 +38,8 @@ namespace PidgeyBot
         public int AfterCatchInSeconds { get; set; }
         public float EvolveAboveIVValue { get; set; }
         public bool EvolveAllPokemonAboveIV { get; set; }
-        
+        public bool UseHumanWalking { get; set; }
+
         //WHY
         public AuthType AuthType { get; set; }
         public string GoogleRefreshToken { get; set; }
@@ -74,7 +75,7 @@ namespace PidgeyBot
                 UsePtcAccounts = Convert.ToBoolean(iniFile.IniReadValue("General", "LoadPTCAccounts"));
                 UseLuckyEggs = Convert.ToBoolean(iniFile.IniReadValue("General", "UseLuckyEggs"));
                 UseEggIncubators = Convert.ToBoolean(iniFile.IniReadValue("General", "UseEggIncubators"));
-    
+                UseHumanWalking = Convert.ToBoolean(iniFile.IniReadValue("General", "UseHumanWalk"));
                 RenamePokemons = Convert.ToBoolean(iniFile.IniReadValue("General", "RenamePokemons"));
 
                 AutoEvolve = Convert.ToBoolean(iniFile.IniReadValue("Evolve", "AutoEvolve"));
