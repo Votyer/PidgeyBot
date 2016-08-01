@@ -23,16 +23,32 @@ namespace PoGo.NecroBot.Logic.Tasks
     {
         public static async Task Execute(PidgeyInstance pidgey)
         {
-            var pokestopList = await GetPokeStops(pidgey);
+            var mapObjects = await pidgey._client.Map.GetMapObjects();
+
+            var pokeStops = mapObjects.MapCells
+                .SelectMany(i => i.Forts)
+                .Where(
+                    i =>
+                        i.Type == FortType.Checkpoint &&
+                        i.CooldownCompleteTimestampMs < DateTime.UtcNow.ToUnixTime())
+                .OrderBy(i => LocationUtils.CalculateDistanceInMeters(pidgey._client.CurrentLatitude,
+                        pidgey._client.CurrentLongitude, i.Latitude, i.Longitude));
+
+            var pokestopList = pokeStops.ToList();
+
             var stopsHit = 0;
+
+            Logger.Write(pokestopList.Count + " PokeStops found", Logger.LogLevel.Info, pidgey._trainerName, pidgey._authType);
 
             if (pokestopList.Count <= 0)
             {
                 Logger.Write("No PokeStops found.", Logger.LogLevel.Info, pidgey._trainerName, pidgey._authType);
             }
 
+            int i2 = 0;
             while (pokestopList.Any())
             {
+                i2++;
                 //resort
                 pokestopList =
                     pokestopList.OrderBy(
@@ -46,7 +62,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                     pidgey._client.CurrentLongitude, pokeStop.Latitude, pokeStop.Longitude);
                 var fortInfo = await pidgey._client.Fort.GetFort(pokeStop.Id, pokeStop.Latitude, pokeStop.Longitude);
 
-                Logger.Write("Walking to PokeStop: " + fortInfo.Name + " ("+Math.Round(distance,2)+"m)", Logger.LogLevel.Info, pidgey._trainerName, pidgey._authType);
+                Logger.Write($"[{i2}/{pokeStops.Count()}] Walking to PokeStop: " + fortInfo.Name + " ("+Math.Round(distance,2)+"m)", Logger.LogLevel.Info, pidgey._trainerName, pidgey._authType);
 
                 await pidgey._navigation.HumanLikeWalking(new GeoCoordinate(pokeStop.Latitude, pokeStop.Longitude),
                     pidgey._client.Settings.WalkingSpeedInKilometerPerHour,
@@ -56,6 +72,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                         await CatchNearbyPokemonsTask.Execute(pidgey);
                         return true;
                     });
+
                 //Catch Lure Pokemon
                 if (pokeStop.LureInfo != null)
                 {
@@ -104,19 +121,6 @@ namespace PoGo.NecroBot.Logic.Tasks
                     .Select(kvp => new { ItemName = kvp.Key.ToString(), Amount = kvp.Sum(x => x.ItemCount) })
                     .Select(y => $"{y.Amount} x {y.ItemName.Substring(4)}")
                     .Aggregate((a, b) => $"{a}, {b}");
-        }
-        private static async Task<List<FortData>> GetPokeStops(PidgeyInstance pidgey)
-        {
-            var mapObjects = await pidgey._client.Map.GetMapObjects();
-            var pokeStops = mapObjects.MapCells
-                .SelectMany(i => i.Forts)
-                .Where(
-                    i =>
-                        i.Type == FortType.Checkpoint &&
-                        i.CooldownCompleteTimestampMs < DateTime.UtcNow.ToUnixTime())
-                .OrderBy(i => LocationUtils.CalculateDistanceInMeters(pidgey._client.CurrentLatitude,
-                        pidgey._client.CurrentLongitude, i.Latitude, i.Longitude));
-            return pokeStops.ToList();
         }
     }
 }

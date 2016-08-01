@@ -96,10 +96,10 @@ namespace PidgeyBot.Utils
                             System.Console.ForegroundColor = ConsoleColor.Red;
                             try
                             {
-                                System.Console.Write($"{ pokemon.PokemonId}");
+                                System.Console.Write($"{ pokemon.PokemonId }");
                             } catch (Exception)
                             {
-                                System.Console.Write($"SoMeThInG");
+                                System.Console.Write($"{encounter?.PokemonData.PokemonId} (yay)");
                             }
                             System.Console.ForegroundColor = ConsoleColor.White;
                             System.Console.Write($" ({encounter?.WildPokemon?.PokemonData?.Cp} CP)\n");
@@ -114,7 +114,7 @@ namespace PidgeyBot.Utils
                             }
                             catch (Exception)
                             {
-                                System.Console.Write($"SoMeThInG");
+                                System.Console.Write($"{encounter?.PokemonData.PokemonId} (yay)");
                             }
                             System.Console.ForegroundColor = ConsoleColor.White;
                             System.Console.Write($" ({encounter?.WildPokemon?.PokemonData?.Cp} CP)\n");
@@ -128,7 +128,7 @@ namespace PidgeyBot.Utils
                             }
                             catch (Exception)
                             {
-                                System.Console.Write($"SoMeThInG");
+                                System.Console.Write($"{encounter?.PokemonData.PokemonId} (yay)");
                             }
                             System.Console.ForegroundColor = ConsoleColor.White;    
                             System.Console.Write($" ({encounter?.WildPokemon?.PokemonData?.Cp} CP)\n");

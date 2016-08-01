@@ -39,8 +39,6 @@ namespace PoGo.NecroBot.Logic.Tasks
                 }
 
                 pidgey._stats.TotalExperience += evolveResponse.ExperienceAwarded;
-
-                await Task.Delay(3000);
             }
         }
 
