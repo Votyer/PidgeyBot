@@ -29,7 +29,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                         break;
                     case "nidoranmale":
                         pokemonName = "Nidoran♂";
-                        break;
+                        break; 
                     default:
                         break;
                 }
@@ -41,7 +41,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                 {
                     pokemonName = pokemonName.Substring(0, nameLength);
                 }
-                string newNickname = String.Format(RenameTemplate, pokemonName, GetPerfectName(perfection));
+                string newNickname = String.Format(RenameTemplate, pokemonName, perfection);
                 string oldNickname = (pokemon.Nickname.Length != 0) ? pokemon.Nickname : pokemon.PokemonId.ToString();
 
                 if (perfection >= pidgey._clientSettings.KeepMinIVPercentage && newNickname != oldNickname &&
@@ -54,50 +54,6 @@ namespace PoGo.NecroBot.Logic.Tasks
             }
 
             await pidgey._inventory.RefreshCachedInventory();
-        }
-        private static string GetPerfectName(double perfectScore)
-        {
-            string result = string.Empty;
-            var TenDigit = Convert.ToInt32(Math.Floor(perfectScore / 10).ToString());
-            var SingleDigit = perfectScore % 10;
-
-            switch (TenDigit)
-            {
-                case 10:
-                    result = string.Format("S{0}", SingleDigit);
-                    break;
-                case 9:
-                    result = string.Format("A{0}", SingleDigit);
-                    break;
-                case 8:
-                    result = string.Format("B{0}", SingleDigit);
-                    break;
-                case 7:
-                    result = string.Format("C{0}", SingleDigit);
-                    break;
-                case 6:
-                    result = string.Format("D{0}", SingleDigit);
-                    break;
-                case 5:
-                    result = string.Format("E{0}", SingleDigit);
-                    break;
-                case 4:
-                    result = string.Format("F{0}", SingleDigit);
-                    break;
-                case 3:
-                    result = string.Format("G{0}", SingleDigit);
-                    break;
-                case 2:
-                    result = string.Format("H{0}", SingleDigit);
-                    break;
-                case 1:
-                    result = string.Format("I{0}", SingleDigit);
-                    break;
-                default:
-                    break;
-            }
-
-            return result;
         }
     }
 }

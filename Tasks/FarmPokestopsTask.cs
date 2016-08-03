@@ -38,7 +38,32 @@ namespace PoGo.NecroBot.Logic.Tasks
 
             var stopsHit = 0;
 
-            Logger.Write(pokestopList.Count + " PokeStops found", Logger.LogLevel.Info, pidgey._trainerName, pidgey._authType);
+            if (pokestopList.Count <= 0)
+            {
+                bool timeOut = false;
+                do
+                {
+                    stopsHit++;
+                    mapObjects = await pidgey._client.Map.GetMapObjects();
+                    pokeStops = mapObjects.MapCells
+                        .SelectMany(i => i.Forts)
+                        .Where(
+                            i =>
+                                i.Type == FortType.Checkpoint &&
+                                i.CooldownCompleteTimestampMs < DateTime.UtcNow.ToUnixTime())
+                        .OrderBy(i => LocationUtils.CalculateDistanceInMeters(pidgey._client.CurrentLatitude,
+                                pidgey._client.CurrentLongitude, i.Latitude, i.Longitude));
+                    pokestopList = pokeStops.ToList();
+                    if(stopsHit % 5 == 0)
+                        Logger.Write($"No PokeStops found. Retry {stopsHit/5}/10, please wait!", LogLevel.Info, pidgey._trainerName, pidgey._authType);
+                    if (stopsHit >= 10)
+                        timeOut = true;
+                    await Task.Delay(1000);
+                }
+                while (pokestopList.Count <= 0 || !timeOut);
+            }
+
+            stopsHit = 0;
 
             if (pokestopList.Count <= 0)
             {

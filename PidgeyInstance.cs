@@ -36,6 +36,11 @@ namespace PidgeyBot
             if (customLong != 0)
                 _clientSettings.DefaultLongitude = customLong;
 
+
+            _authType = authType;
+            _clientSettings.PtcUsername = username;
+            _clientSettings.PtcPassword = password;
+
             _client = new Client(_clientSettings);
             _navigation = new Navigation(this);
             _inventory = new Inventory(_client);
@@ -46,10 +51,6 @@ namespace PidgeyBot
                 _stats = stats;
 
             _client.ApiFailure = new ApiFailureStrategy(this);
-
-            _authType = authType;
-            _clientSettings.PtcUsername = username;
-            _clientSettings.PtcPassword = password;
         }
 
         public async Task Execute()
@@ -74,7 +75,7 @@ namespace PidgeyBot
                 }
                 catch (AccessTokenExpiredException)
                 {
-                    Logger.Write($"Access token expired, trying to relog.", LogLevel.Info, _trainerName, _authType);
+                    Logger.Write($"Access token expired, trying to relog. (1)", LogLevel.Info, _trainerName, _authType);
                     new PidgeyInstance(_clientSettings, _authType, _clientSettings.PtcUsername, _clientSettings.PtcUsername, _clientSettings.DefaultLatitude, _clientSettings.DefaultLongitude, _stats);
                 }
                 await Task.Delay(10000);
@@ -115,13 +116,13 @@ namespace PidgeyBot
                 catch (AccessTokenExpiredException)
                 {
                     expired = true;
-                    Logger.Write($"Access token expired, attempt to relog", LogLevel.Info, _trainerName, _authType);
+                    Logger.Write($"Access token expired, attempt to relog. (2)", LogLevel.Info, _trainerName, _authType);
                     new PidgeyInstance(_clientSettings, _authType, _clientSettings.PtcUsername, _clientSettings.PtcUsername, _clientSettings.DefaultLatitude, _clientSettings.DefaultLongitude, _stats);
                 }
                 catch (InvalidResponseException)
                 {
                     expired = true;
-                    Logger.Write($"Access token expired, attempt to relog", LogLevel.Info, _trainerName, _authType);
+                    Logger.Write($"Access token expired, attempt to relog. (3)", LogLevel.Info, _trainerName, _authType);
                     new PidgeyInstance(_clientSettings, _authType, _clientSettings.PtcUsername, _clientSettings.PtcUsername, _clientSettings.DefaultLatitude, _clientSettings.DefaultLongitude, _stats);
                 }
                 catch (Exception ex)

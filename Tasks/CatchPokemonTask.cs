@@ -47,8 +47,8 @@ namespace PoGo.NecroBot.Logic.Tasks
 
                 if ((isLowProbability && isHighCp) || isHighPerfection)
                 {
-                    await UseBerry(pidgey, encounter is EncounterResponse ? pokemon.EncounterId : encounterId,
-                        encounter is EncounterResponse ? pokemon.SpawnPointId : currentFortData?.Id);
+                    //await UseBerry(pidgey, encounter is EncounterResponse ? pokemon.EncounterId : encounterId,
+                        //encounter is EncounterResponse ? pokemon.SpawnPointId : currentFortData?.Id);
                 }
 
                 var distance = LocationUtils.CalculateDistanceInMeters(pidgey._client.CurrentLatitude,
@@ -143,8 +143,6 @@ namespace PoGo.NecroBot.Logic.Tasks
             await pidgey._client.Encounter.UseCaptureItem(encounterId, ItemId.ItemRazzBerry, spawnPointId);
             berry.Count -= 1;
             Logger.Write("Use Berry, " + berry.Count + " remaining", LogLevel.Info, pidgey._trainerName, pidgey._authType);
-
-            await Task.Delay(1500);
         }
     }
 }

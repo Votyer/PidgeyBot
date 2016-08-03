@@ -46,22 +46,12 @@ namespace PidgeyBot.Common
         {
             switch (_session._client.Settings.AuthType)
             {
-                case AuthType.Ptc:
-                    try
-                    {
-                        await
-                            _session._client.Login.DoPtcLogin(_session._clientSettings.PtcUsername,
-                                _session._clientSettings.PtcPassword);
-                    }
-                    catch (AggregateException ae)
-                    {
-                        throw ae.Flatten().InnerException;
-                    }
-                    break;
                 case AuthType.Google:
-                    await
-                        _session._client.Login.DoGoogleLogin(_session._clientSettings.PtcUsername,
-                            _session._clientSettings.PtcPassword);
+                    System.Console.WriteLine("Yo, mail: " + _session._clientSettings.PtcUsername + " pass: " + _session._clientSettings.PtcPassword);
+                    await _session._client.Login.DoGoogleLogin(_session._clientSettings.PtcUsername, _session._clientSettings.PtcPassword);
+                    break;
+                case AuthType.Ptc:
+                    await _session._client.Login.DoPtcLogin(_session._clientSettings.PtcUsername, _session._clientSettings.PtcPassword);
                     break;
             }
         }

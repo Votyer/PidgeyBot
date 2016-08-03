@@ -24,7 +24,7 @@ namespace PokemonGo.RocketAPI.Rpc
                 PlayerLatitude = _client.CurrentLatitude,
                 PlayerLongitude = _client.CurrentLongitude
             };
-            
+
             return await PostProtoPayload<Request, EncounterResponse>(RequestType.Encounter, message);
         }
 
@@ -36,7 +36,7 @@ namespace PokemonGo.RocketAPI.Rpc
                 ItemId = itemId,
                 SpawnPointId = spawnPointId
             };
-            
+
             return await PostProtoPayload<Request, UseItemCaptureResponse>(RequestType.UseItemCapture, message);
         }
 
@@ -52,7 +52,7 @@ namespace PokemonGo.RocketAPI.Rpc
                 SpinModifier = spinModifier,
                 NormalizedHitPosition = normalizedHitPos
             };
-            
+
             return await PostProtoPayload<Request, CatchPokemonResponse>(RequestType.CatchPokemon, message);
         }
 
