@@ -36,21 +36,28 @@ namespace PidgeyBot
             if (customLong != 0)
                 _clientSettings.DefaultLongitude = customLong;
 
+            switch (authType)
+            {
+                case AuthType.Google:
+                    _clientSettings.GoogleUsername = username;
+                    _clientSettings.GooglePassword = password;
+                    _clientSettings.AuthType = AuthType.Google;
+                    break;
+                case AuthType.Ptc:
+                    _clientSettings.PtcUsername = username;
+                    _clientSettings.PtcPassword = password;
+                    _clientSettings.AuthType = AuthType.Ptc;
+                    break;
+            }
 
-            _authType = authType;
-            _clientSettings.PtcUsername = username;
-            _clientSettings.PtcPassword = password;
-
-            _client = new Client(_clientSettings);
+            _client = new Client(_clientSettings, new ApiFailureStrategy(this));
             _navigation = new Navigation(this);
-            _inventory = new Inventory(_client);
+            _inventory = new Inventory(this);
 
             if (stats == null)
                 _stats = new Statistics(null);
             else
                 _stats = stats;
-
-            _client.ApiFailure = new ApiFailureStrategy(this);
         }
 
         public async Task Execute()
@@ -60,23 +67,17 @@ namespace PidgeyBot
             {
                 try
                 {
-                    switch (_authType)
-                    {
-                        case AuthType.Google:
-                            await _client.Login.DoGoogleLogin(_clientSettings.PtcUsername, _clientSettings.PtcPassword);
-                            break;
-                        case AuthType.Ptc:
-                            await _client.Login.DoPtcLogin(_clientSettings.PtcUsername, _clientSettings.PtcPassword);
-                            break;
-                    }
+                    await _client.Login.DoLogin();
                     var profile = await _client.Player.GetPlayer(); 
                     _trainerName = profile.PlayerData.Username;
+                    Logger.Write($"Logged in as {_trainerName}", LogLevel.Info, _trainerName, _authType);
                     await PostLoginExecute();
                 }
                 catch (AccessTokenExpiredException)
                 {
                     Logger.Write($"Access token expired, trying to relog. (1)", LogLevel.Info, _trainerName, _authType);
-                    new PidgeyInstance(_clientSettings, _authType, _clientSettings.PtcUsername, _clientSettings.PtcUsername, _clientSettings.DefaultLatitude, _clientSettings.DefaultLongitude, _stats);
+                    PidgeyInstance instance = new PidgeyInstance(_clientSettings, _authType, _clientSettings.PtcUsername, _clientSettings.PtcUsername, _clientSettings.DefaultLatitude, _clientSettings.DefaultLongitude, _stats);
+                    Task.Run(() => instance.Execute());
                 }
                 await Task.Delay(10000);
             }
@@ -117,13 +118,15 @@ namespace PidgeyBot
                 {
                     expired = true;
                     Logger.Write($"Access token expired, attempt to relog. (2)", LogLevel.Info, _trainerName, _authType);
-                    new PidgeyInstance(_clientSettings, _authType, _clientSettings.PtcUsername, _clientSettings.PtcUsername, _clientSettings.DefaultLatitude, _clientSettings.DefaultLongitude, _stats);
+                    PidgeyInstance instance = new PidgeyInstance(_clientSettings, _authType, _clientSettings.PtcUsername, _clientSettings.PtcUsername, _clientSettings.DefaultLatitude, _clientSettings.DefaultLongitude, _stats);
+                    Task.Run(() => instance.Execute());
                 }
                 catch (InvalidResponseException)
                 {
                     expired = true;
                     Logger.Write($"Access token expired, attempt to relog. (3)", LogLevel.Info, _trainerName, _authType);
-                    new PidgeyInstance(_clientSettings, _authType, _clientSettings.PtcUsername, _clientSettings.PtcUsername, _clientSettings.DefaultLatitude, _clientSettings.DefaultLongitude, _stats);
+                    PidgeyInstance instance = new PidgeyInstance(_clientSettings, _authType, _clientSettings.PtcUsername, _clientSettings.PtcUsername, _clientSettings.DefaultLatitude, _clientSettings.DefaultLongitude, _stats);
+                    Task.Run(() => instance.Execute());
                 }
                 catch (Exception ex)
                 {

@@ -2,8 +2,7 @@
 
 using System;
 using System.Threading.Tasks;
-using PokemonGo.RocketAPI.Common;
-using PokemonGo.RocketAPI.Enums;
+using POGOProtos.Networking.Envelopes;
 using PokemonGo.RocketAPI.Extensions;
 
 #endregion
@@ -21,7 +20,7 @@ namespace PidgeyBot.Common
             _session = session;
         }
 
-        public async Task<ApiOperation> HandleApiFailure()
+        public async Task<ApiOperation> HandleApiFailure(RequestEnvelope request, ResponseEnvelope response)
         {
             if (_retryCount == 11)
                 return ApiOperation.Abort;
@@ -31,29 +30,15 @@ namespace PidgeyBot.Common
 
             if (_retryCount % 5 == 0)
             {
-                DoLogin();
+                await _session._client.Login.DoLogin();
             }
 
             return ApiOperation.Retry;
         }
 
-        public void HandleApiSuccess()
+        public void HandleApiSuccess(RequestEnvelope request, ResponseEnvelope response)
         {
             _retryCount = 0;
-        }
-
-        private async void DoLogin()
-        {
-            switch (_session._client.Settings.AuthType)
-            {
-                case AuthType.Google:
-                    System.Console.WriteLine("Yo, mail: " + _session._clientSettings.PtcUsername + " pass: " + _session._clientSettings.PtcPassword);
-                    await _session._client.Login.DoGoogleLogin(_session._clientSettings.PtcUsername, _session._clientSettings.PtcPassword);
-                    break;
-                case AuthType.Ptc:
-                    await _session._client.Login.DoPtcLogin(_session._clientSettings.PtcUsername, _session._clientSettings.PtcPassword);
-                    break;
-            }
         }
     }
 }

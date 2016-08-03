@@ -24,7 +24,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                     ExpirationTimestampMs = incensePokemon.DisappearTimestampMs,
                     Latitude = incensePokemon.Latitude,
                     Longitude = incensePokemon.Longitude,
-                    PokemonId = (PokemonId)incensePokemon.PokemonTypeId,
+                    PokemonId = incensePokemon.PokemonId,
                     SpawnPointId = incensePokemon.EncounterLocation
                 };
 
@@ -42,7 +42,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                 }
                 else if (encounter.Result == IncenseEncounterResponse.Types.Result.PokemonInventoryFull)
                 {
-                    if (pidgey._client.Settings.AutoTransfer)
+                    if (pidgey._clientSettings.AutoTransfer)
                     {
                         Logger.Write($"PokemonInventory is Full. Transferring pokemons...", LogLevel.Warning);
                         await TransferDuplicatePokemonTask.Execute(pidgey);

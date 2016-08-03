@@ -18,11 +18,11 @@ namespace PidgeyBot.Logic
 {
     public class Inventory
     {
-        private readonly Client _client;
+        private readonly PidgeyInstance _client;
         private GetInventoryResponse _cachedInventory;
         private DateTime _lastRefresh;
 
-        public Inventory(Client client)
+        public Inventory(PidgeyInstance client)
         {
             _client = client;
         }
@@ -57,7 +57,7 @@ namespace PidgeyBot.Logic
             var pokemonList =
                 myPokemon.Where(
                     p => p.DeployedFortId == string.Empty && PokemonInfo.CalculatePokemonPerfection(p) < 100 &&
-                         (p.Favorite == 0 && p.Cp < _client.Settings.KeepMinCP || PokemonInfo.CalculatePokemonPerfection(p) < _client.Settings.KeepMinIVPercentage))
+                         (p.Favorite == 0 && p.Cp < _client._clientSettings.KeepMinCP || PokemonInfo.CalculatePokemonPerfection(p) < _client._clientSettings.KeepMinIVPercentage))
                     .ToList();
             if (filter != null)
             {
@@ -67,7 +67,7 @@ namespace PidgeyBot.Logic
             {
                 var results = new List<PokemonData>();
                 var pokemonsThatCanBeTransfered = pokemonList.GroupBy(p => p.PokemonId)
-                    .Where(x => x.Count() > _client.Settings.KeepMinDuplicatePokemon).ToList();
+                    .Where(x => x.Count() > _client._clientSettings.KeepMinDuplicatePokemon).ToList();
 
                 var myPokemonSettings = await GetPokemonSettings();
                 var pokemonSettings = myPokemonSettings.ToList();
@@ -79,11 +79,11 @@ namespace PidgeyBot.Logic
                 {
                     var settings = pokemonSettings.Single(x => x.PokemonId == pokemon.Key);
                     var familyCandy = pokemonFamilies.Single(x => settings.FamilyId == x.FamilyId);
-                    var amountToSkip = _client.Settings.KeepMinDuplicatePokemon;
+                    var amountToSkip = _client._clientSettings.KeepMinDuplicatePokemon;
 
                     if (settings.CandyToEvolve > 0)
                     {
-                        var amountPossible = familyCandy.Candy / settings.CandyToEvolve;
+                        var amountPossible = familyCandy.Candy_ / settings.CandyToEvolve;
                         if (amountPossible > amountToSkip)
                             amountToSkip = amountPossible;
                     }
@@ -117,7 +117,7 @@ namespace PidgeyBot.Logic
                         p =>
                             p.OrderByDescending(PokemonInfo.CalculatePokemonPerfection)
                                 .ThenBy(n => n.StaminaMax)
-                                .Skip(_client.Settings.KeepMinDuplicatePokemon)
+                                .Skip(_client._clientSettings.KeepMinDuplicatePokemon)
                                 .ToList());
             }
             return pokemonList
@@ -127,7 +127,7 @@ namespace PidgeyBot.Logic
                     p =>
                         p.OrderByDescending(x => x.Cp)
                             .ThenBy(n => n.StaminaMax)
-                            .Skip(_client.Settings.KeepMinDuplicatePokemon)
+                            .Skip(_client._clientSettings.KeepMinDuplicatePokemon)
                             .ToList());
         }
 
@@ -200,13 +200,13 @@ namespace PidgeyBot.Logic
             var myItems = await GetItems();
 
             return myItems
-                .Where(x => _client.Settings.ItemRecycleFilter.Any(f => f.Key == x.ItemId && x.Count > f.Value))
+                .Where(x => _client._clientSettings.ItemRecycleFilter.Any(f => f.Key == x.ItemId && x.Count > f.Value))
                 .Select(
                     x =>
                         new ItemData
                         {
                             ItemId = x.ItemId,
-                            Count = x.Count - _client.Settings.ItemRecycleFilter.Single(f => f.Key == x.ItemId).Value,
+                            Count = x.Count - _client._clientSettings.ItemRecycleFilter.Single(f => f.Key == x.ItemId).Value,
                             Unseen = x.Unseen
                         });
         }
@@ -219,18 +219,18 @@ namespace PidgeyBot.Logic
                 .Where(p => p != null);
         }
 
-        public async Task<List<PokemonFamily>> GetPokemonFamilies()
+        public async Task<List<Candy>> GetPokemonFamilies()
         {
             var inventory = await GetCachedInventory();
 
             var families = from item in inventory.InventoryDelta.InventoryItems
-                           where item.InventoryItemData?.PokemonFamily != null
-                           where item.InventoryItemData?.PokemonFamily.FamilyId != PokemonFamilyId.FamilyUnset
-                           group item by item.InventoryItemData?.PokemonFamily.FamilyId into family
-                           select new PokemonFamily
+                           where item.InventoryItemData?.Candy != null
+                           where item.InventoryItemData?.Candy.FamilyId != PokemonFamilyId.FamilyUnset
+                           group item by item.InventoryItemData?.Candy.FamilyId into family
+                           select new Candy
                            {
-                               FamilyId = family.First().InventoryItemData.PokemonFamily.FamilyId,
-                               Candy = family.First().InventoryItemData.PokemonFamily.Candy
+                               FamilyId = family.First().InventoryItemData.Candy.FamilyId,
+                               Candy_ = family.First().InventoryItemData.Candy.Candy_
                            };
 
 
@@ -247,7 +247,7 @@ namespace PidgeyBot.Logic
 
         public async Task<IEnumerable<PokemonSettings>> GetPokemonSettings()
         {
-            var templates = await _client.Download.GetItemTemplates();
+            var templates = await _client._client.Download.GetItemTemplates();
             return
                 templates.ItemTemplates.Select(i => i.PokemonSettings)
                     .Where(p => p != null && p.FamilyId != PokemonFamilyId.FamilyUnset);
@@ -285,17 +285,17 @@ namespace PidgeyBot.Logic
                         p => pokemonSettings.Single(x => x.PokemonId == p.PokemonId).FamilyId == settings.FamilyId) *
                     settings.CandyToEvolve;
 
-                if (_client.Settings.EvolveAllPokemonAboveIV)
+                if (_client._clientSettings.EvolveAllPokemonAboveIV)
                 {
-                    if (PokemonInfo.CalculatePokemonPerfection(pokemon) >= _client.Settings.EvolveAboveIVValue &&
-                        familyCandy.Candy - pokemonCandyNeededAlready > settings.CandyToEvolve)
+                    if (PokemonInfo.CalculatePokemonPerfection(pokemon) >= _client._clientSettings.EvolveAboveIVValue &&
+                        familyCandy.Candy_ - pokemonCandyNeededAlready > settings.CandyToEvolve)
                     {
                         pokemonToEvolve.Add(pokemon);
                     }
                 }
                 else
                 {
-                    if (familyCandy.Candy - pokemonCandyNeededAlready > settings.CandyToEvolve)
+                    if (familyCandy.Candy_ - pokemonCandyNeededAlready > settings.CandyToEvolve)
                     {
                         pokemonToEvolve.Add(pokemon);
                     }
@@ -314,7 +314,7 @@ namespace PidgeyBot.Logic
             try
             {
                 _lastRefresh = now;
-                _cachedInventory = await _client.Inventory.GetInventory();
+                _cachedInventory = await _client._client.Inventory.GetInventory();
                 return _cachedInventory;
             }
             finally

@@ -34,7 +34,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                 }
                 else if (encounter.Status == EncounterResponse.Types.Status.PokemonInventoryFull)
                 {
-                    if (pidgey._client.Settings.AutoTransfer)
+                    if (pidgey._clientSettings.AutoTransfer)
                     {
                         Logger.Write($"PokemonInventory is Full. Transferring pokemons...", LogLevel.Info);
                         await TransferDuplicatePokemonTask.Execute(pidgey);
@@ -51,19 +51,20 @@ namespace PoGo.NecroBot.Logic.Tasks
                 // If pokemon is not last pokemon in list, create delay between catches, else keep moving.
                 if (!Equals(pokemons.ElementAtOrDefault(pokemons.Count() - 1), pokemon))
                 {
-                    await Task.Delay(pidgey._client.Settings.DelayBetweenPokemonCatch);
+                    await Task.Delay(pidgey._clientSettings.DelayBetweenPokemonCatch);
                 }
             }
         }
 
-        private static async Task<IOrderedEnumerable<MapPokemon>> GetNearbyPokemons(Client _client)
+        private static async Task<IOrderedEnumerable<MapPokemon>> GetNearbyPokemons(Client session)
         {
-            var mapObjects = await _client.Map.GetMapObjects();
+            var mapObjects = await session.Map.GetMapObjects();
 
-            var pokemons = mapObjects.MapCells.SelectMany(i => i.CatchablePokemons)
+            var pokemons = mapObjects.Item1.MapCells.SelectMany(i => i.CatchablePokemons)
                 .OrderBy(
                     i =>
-                        LocationUtils.CalculateDistanceInMeters(_client.CurrentLatitude, _client.CurrentLongitude,
+                        LocationUtils.CalculateDistanceInMeters(session.CurrentLatitude,
+                            session.CurrentLongitude,
                             i.Latitude, i.Longitude));
 
             return pokemons;

@@ -47,7 +47,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                 if(pidgey._clientSettings.RecycleItems)
                     await RecycleItemsTask.Execute(pidgey);
 
-                if (pidgey._client.Settings.AutoTransfer)
+                if (pidgey._clientSettings.AutoTransfer)
                 {
                     await TransferDuplicatePokemonTask.Execute(pidgey);
                 }
@@ -71,7 +71,7 @@ namespace PoGo.NecroBot.Logic.Tasks
         private static async Task<List<FortData>> GetPokeStops(PidgeyInstance pidgey)
         {
             var mapObjects = await pidgey._client.Map.GetMapObjects();
-            var pokeStops = mapObjects.MapCells
+            var pokeStops = mapObjects.Item1.MapCells
                 .SelectMany(i => i.Forts)
                 .Where(
                     i =>

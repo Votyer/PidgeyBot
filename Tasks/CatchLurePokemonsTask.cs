@@ -26,7 +26,7 @@ namespace PoGo.NecroBot.Logic.Tasks
             }
             else if (encounter.Result == DiskEncounterResponse.Types.Result.PokemonInventoryFull)
             {
-                if (pidgey._client.Settings.AutoTransfer)
+                if (pidgey._clientSettings.AutoTransfer)
                 {
                     Logger.Write($"PokemonInventory is Full. Transferring pokemons...", LogLevel.Info, pidgey._trainerName, pidgey._authType);
                     await TransferDuplicatePokemonTask.Execute(pidgey);

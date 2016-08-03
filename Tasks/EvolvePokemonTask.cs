@@ -19,12 +19,12 @@ namespace PoGo.NecroBot.Logic.Tasks
         private static DateTime _lastLuckyEggTime;
         public static async Task Execute(PidgeyInstance pidgey)
         {
-            if (pidgey._client.Settings.UseLuckyEggs)
+            if (pidgey._clientSettings.UseLuckyEggs)
             {
                 await UseLuckyEgg(pidgey);
             }
 
-            var pokemonToEvolveTask = await pidgey._inventory.GetPokemonToEvolve(pidgey._client.Settings.PokemonsToEvolve);
+            var pokemonToEvolveTask = await pidgey._inventory.GetPokemonToEvolve(pidgey._clientSettings.PokemonsToEvolve);
 
             var pokemonToEvolve = pokemonToEvolveTask;
             foreach (var pokemon in pokemonToEvolve)

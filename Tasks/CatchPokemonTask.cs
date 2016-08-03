@@ -43,12 +43,12 @@ namespace PoGo.NecroBot.Logic.Tasks
                 var isHighPerfection =
                     PokemonInfo.CalculatePokemonPerfection(encounter is EncounterResponse
                         ? encounter?.WildPokemon?.PokemonData
-                        : encounter?.PokemonData) >= pidgey._client.Settings.KeepMinIVPercentage;
+                        : encounter?.PokemonData) >= pidgey._clientSettings.KeepMinIVPercentage;
 
                 if ((isLowProbability && isHighCp) || isHighPerfection)
                 {
-                    //await UseBerry(pidgey, encounter is EncounterResponse ? pokemon.EncounterId : encounterId,
-                        //encounter is EncounterResponse ? pokemon.SpawnPointId : currentFortData?.Id);
+                    await UseBerry(pidgey, encounter is EncounterResponse ? pokemon.EncounterId : encounterId,
+                        encounter is EncounterResponse ? pokemon.SpawnPointId : currentFortData?.Id);
                 }
 
                 var distance = LocationUtils.CalculateDistanceInMeters(pidgey._client.CurrentLatitude,
@@ -110,10 +110,10 @@ namespace PoGo.NecroBot.Logic.Tasks
             if (greatBallsCount > 0 && pokemonCp >= 750)
                 return ItemId.ItemGreatBall;
 
-            if (ultraBallsCount > 0 && iV >= pidgey._client.Settings.KeepMinIVPercentage && probability < 0.40)
+            if (ultraBallsCount > 0 && iV >= pidgey._clientSettings.KeepMinIVPercentage && probability < 0.40)
                 return ItemId.ItemUltraBall;
 
-            if (greatBallsCount > 0 && iV >= pidgey._client.Settings.KeepMinIVPercentage && probability < 0.50)
+            if (greatBallsCount > 0 && iV >= pidgey._clientSettings.KeepMinIVPercentage && probability < 0.50)
                 return ItemId.ItemGreatBall;
 
             if (greatBallsCount > 0 && pokemonCp >= 300)

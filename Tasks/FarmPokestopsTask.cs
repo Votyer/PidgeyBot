@@ -25,7 +25,9 @@ namespace PoGo.NecroBot.Logic.Tasks
         {
             var mapObjects = await pidgey._client.Map.GetMapObjects();
 
-            var pokeStops = mapObjects.MapCells
+            Console.WriteLine(mapObjects.Item1.MapCells);
+
+            var pokeStops = mapObjects.Item1.MapCells
                 .SelectMany(i => i.Forts)
                 .Where(
                     i =>
@@ -45,7 +47,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                 {
                     stopsHit++;
                     mapObjects = await pidgey._client.Map.GetMapObjects();
-                    pokeStops = mapObjects.MapCells
+                    pokeStops = mapObjects.Item1.MapCells
                         .SelectMany(i => i.Forts)
                         .Where(
                             i =>
@@ -55,20 +57,18 @@ namespace PoGo.NecroBot.Logic.Tasks
                                 pidgey._client.CurrentLongitude, i.Latitude, i.Longitude));
                     pokestopList = pokeStops.ToList();
                     if(stopsHit % 5 == 0)
-                        Logger.Write($"No PokeStops found. Retry {stopsHit/5}/10, please wait!", LogLevel.Info, pidgey._trainerName, pidgey._authType);
+                        Logger.Write($"No PokeStops found. Retry {stopsHit/5}/2, please wait!", LogLevel.Info, pidgey._trainerName, pidgey._authType);
                     if (stopsHit >= 10)
+                    {
                         timeOut = true;
+                        Logger.Write("Timed out, we try a relog...", LogLevel.Info, pidgey._trainerName, pidgey._authType);
+                    }
                     await Task.Delay(1000);
                 }
-                while (pokestopList.Count <= 0 || !timeOut);
+                while (pokestopList.Count <= 0 && !timeOut);
             }
 
             stopsHit = 0;
-
-            if (pokestopList.Count <= 0)
-            {
-                Logger.Write("No PokeStops found.", Logger.LogLevel.Info, pidgey._trainerName, pidgey._authType);
-            }
 
             int i2 = 0;
             while (pokestopList.Any())
@@ -92,7 +92,7 @@ namespace PoGo.NecroBot.Logic.Tasks
                     Logger.Write($"[{i2}/{pokeStops.Count()}] Walking to PokeStop: " + fortInfo.Name + " (" + Math.Round(distance, 2) + "m)", Logger.LogLevel.Info, pidgey._trainerName, pidgey._authType);
 
                     await pidgey._navigation.HumanLikeWalking(new GeoCoordinate(pokeStop.Latitude, pokeStop.Longitude),
-                        pidgey._client.Settings.WalkingSpeedInKilometerPerHour,
+                        pidgey._clientSettings.WalkingSpeedInKilometerPerHour,
                         async () =>
                         {
                         // Catch normal map Pokemon
@@ -132,10 +132,10 @@ namespace PoGo.NecroBot.Logic.Tasks
                     if (pidgey._clientSettings.RecycleItems)
                         await RecycleItemsTask.Execute(pidgey);
 
-                    if (pidgey._client.Settings.AutoEvolve || pidgey._client.Settings.EvolveAllPokemonAboveIV)
+                    if (pidgey._clientSettings.AutoEvolve || pidgey._clientSettings.EvolveAllPokemonAboveIV)
                         await EvolvePokemonTask.Execute(pidgey);
 
-                    if (pidgey._client.Settings.AutoTransfer)
+                    if (pidgey._clientSettings.AutoTransfer)
                         await TransferDuplicatePokemonTask.Execute(pidgey);
 
                     Logger.Write(pidgey._stats.ToStrings(pidgey._inventory), LogLevel.Info, pidgey._trainerName, pidgey._authType);
